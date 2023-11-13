@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\API\CompanyController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,3 +28,6 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 });
+
+Route::get('/user', [UserController::class, 'index']);
+Route::get('/adduser', [UserController::class, 'add']);
