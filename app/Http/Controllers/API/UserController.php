@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Fortify\Rules\Password;
 
 class UserController extends Controller
 {
@@ -21,7 +22,7 @@ class UserController extends Controller
             ]);
 
             // Find User by email
-            $credentials = $request(['email', 'password']);
+            $credentials = request(['email', 'password']);
             if(!Auth::attempt($credentials)){
                 return ResponseFormatter::error('Unauthorized', 401);
             }
@@ -42,10 +43,56 @@ class UserController extends Controller
             ], 'Login Success');
 
         } catch (Exception $e) {
+            // Return error response
             return ResponseFormatter::error('Authentication Failed!');
         }
-
-
     }
 
+    public function register(Request $request){
+        try {
+            // Validate request
+            $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+                'password' => ['required', 'string', new Password],
+            ]);
+
+            //Create User
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
+
+            // Generate token
+            $tokenResult = $user->createToken('authToken')->plainTextToken;
+
+            // Return response
+            return ResponseFormatter::success([
+                'access_token' => $tokenResult,
+                'token_type' => 'Bearer',
+                'user' => $user,
+            ], 'Register Success');
+
+        } catch (Exception $error) {
+            // Return error response
+            return ResponseFormatter::error($error->getMessage());
+        }
+    }
+
+    public function logout(Request $request){
+        // Revoke Token
+        $token = $request->user()->currentAccessToken()->delete();
+
+        // Return response
+        return ResponseFormatter::success($token, 'Logout Success!');
+    }
+
+    public function fetch(Request $request){
+        // Get User
+        $user = $request->user();
+
+        // Return response
+        return ResponseFormatter::success($user, 'Fetch Success!');
+    }
 }
