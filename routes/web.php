@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\CompanyController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,5 +29,5 @@ Route::middleware([
     })->name('dashboard');
 });
 
-Route::get('/user', [UserController::class, 'index']);
-Route::get('/adduser', [UserController::class, 'add']);
+// Route::get('/user', [UserController::class, 'index']);
+// Route::get('/adduser', [UserController::class, 'add']);

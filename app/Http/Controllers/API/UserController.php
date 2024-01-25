@@ -13,7 +13,8 @@ use Laravel\Fortify\Rules\Password;
 
 class UserController extends Controller
 {
-    public function login(Request $request){
+    public function login(Request $request)
+    {
         try {
             // Validate request
             $request->validate([
@@ -23,13 +24,13 @@ class UserController extends Controller
 
             // Find User by email
             $credentials = request(['email', 'password']);
-            if(!Auth::attempt($credentials)){
+            if (!Auth::attempt($credentials)) {
                 return ResponseFormatter::error('Unauthorized', 401);
             }
 
             $user = User::where('email', $request->email)->first();
-            if(!Hash::check($request->password, $user->password)){
-                Throw new Exception('Invalid Password');
+            if (!Hash::check($request->password, $user->password)) {
+                throw new Exception('Invalid Password');
             }
 
             // Generate token
@@ -41,14 +42,14 @@ class UserController extends Controller
                 'token_type' => 'Bearer',
                 'user' => $user,
             ], 'Login Success');
-
         } catch (Exception $e) {
             // Return error response
             return ResponseFormatter::error('Authentication Failed!');
         }
     }
 
-    public function register(Request $request){
+    public function register(Request $request)
+    {
         try {
             // Validate request
             $request->validate([
@@ -73,14 +74,14 @@ class UserController extends Controller
                 'token_type' => 'Bearer',
                 'user' => $user,
             ], 'Register Success');
-
         } catch (Exception $error) {
             // Return error response
             return ResponseFormatter::error($error->getMessage());
         }
     }
 
-    public function logout(Request $request){
+    public function logout(Request $request)
+    {
         // Revoke Token
         $token = $request->user()->currentAccessToken()->delete();
 
@@ -88,7 +89,8 @@ class UserController extends Controller
         return ResponseFormatter::success($token, 'Logout Success!');
     }
 
-    public function fetch(Request $request){
+    public function fetch(Request $request)
+    {
         // Get User
         $user = $request->user();
 
